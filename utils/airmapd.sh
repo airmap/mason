@@ -5,6 +5,9 @@ set -e
 variant=${1}
 
 if [ "${variant}" -eq "linux" ]; then
+    CC=/usr/bin/gcc CXX=/usr/bin/g++ ./mason build   boost       1.63.0
+    CC=/usr/bin/gcc CXX=/usr/bin/g++ ./mason publish boost       1.63.0
+
     CC=/usr/bin/gcc CXX=/usr/bin/g++ ./mason build   boost_libdate_time       1.63.0
     CC=/usr/bin/gcc CXX=/usr/bin/g++ ./mason publish boost_libdate_time       1.63.0
 
