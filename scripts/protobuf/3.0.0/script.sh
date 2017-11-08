@@ -18,12 +18,17 @@ function mason_load_source {
 }
 
 function mason_compile {
+    if [ ${MASON_PLATFORM} = 'android' ]; then
+        PROTOC="--with-protoc=protoc"
+    fi
+
     ./configure \
         --prefix=${MASON_PREFIX} \
         ${MASON_HOST_ARG} \
         --enable-static --disable-shared \
         --disable-debug --without-zlib \
-        --disable-dependency-tracking
+        --disable-dependency-tracking \
+        ${PROTOC:-}
 
     make install -j${MASON_CONCURRENCY}
 }
