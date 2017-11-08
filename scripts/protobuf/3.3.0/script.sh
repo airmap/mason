@@ -21,12 +21,19 @@ function mason_compile {
     # note CFLAGS overrides defaults (-O2 -g -DNDEBUG) so we need to add optimization flags back
     export CFLAGS="${CFLAGS} -O3 -DNDEBUG"
     export CXXFLAGS="${CXXFLAGS} -O3 -DNDEBUG"
+    export LDFLAGS="-llog"
+
+    if [ ${MASON_PLATFORM} = 'android' ]; then
+        PROTOC="--with-protoc=protoc"
+    fi
+
     ./configure \
         --prefix=${MASON_PREFIX} \
         ${MASON_HOST_ARG} \
         --enable-static --disable-shared \
         --disable-debug --without-zlib \
-        --disable-dependency-tracking
+        --disable-dependency-tracking \
+        ${PROTOC:-}
 
     make V=1 -j${MASON_CONCURRENCY}
     make install -j${MASON_CONCURRENCY}

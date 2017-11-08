@@ -3,7 +3,7 @@ set -o pipefail
 # set -x
 
 export MASON_ROOT=${MASON_ROOT:-`pwd`/mason_packages}
-MASON_BUCKET=${MASON_BUCKET:-mason-binaries}
+MASON_BUCKET=${MASON_BUCKET:-airmap-mason}
 MASON_IGNORE_OSX_SDK=${MASON_IGNORE_OSX_SDK:-false}
 
 MASON_UNAME=`uname -s`
@@ -531,14 +531,14 @@ function mason_try_binary {
     if [ ! -f "${MASON_BINARIES_PATH}" ] ; then
         mason_step "Downloading binary package ${MASON_BINARIES}..."
         curl --retry 3 ${MASON_CURL_ARGS} -f -L \
-            https://${MASON_BUCKET}.s3.amazonaws.com/${MASON_BINARIES} \
+            https://${MASON_BUCKET}.s3-us-west-2.amazonaws.com/${MASON_BINARIES} \
             -o "${MASON_BINARIES_PATH}.tmp" && \
             mv "${MASON_BINARIES_PATH}.tmp" "${MASON_BINARIES_PATH}" || \
-            mason_step "Binary not available yet for https://${MASON_BUCKET}.s3.amazonaws.com/${MASON_BINARIES}"
+            mason_step "Binary not available yet for https://${MASON_BUCKET}.s3-us-west-2.amazonaws.com/${MASON_BINARIES}"
     else
         mason_step "Updating binary package ${MASON_BINARIES}..."
         curl --retry 3 ${MASON_CURL_ARGS} -f -L -z "${MASON_BINARIES_PATH}" \
-            https://${MASON_BUCKET}.s3.amazonaws.com/${MASON_BINARIES} \
+            https://${MASON_BUCKET}.s3-us-west-2.amazonaws.com/${MASON_BINARIES} \
             -o "${MASON_BINARIES_PATH}.tmp"
         if [ $? -eq 0 ] ; then
             if [ -f "${MASON_BINARIES_PATH}.tmp" ]; then
@@ -686,15 +686,15 @@ function mason_publish {
     MD5="$(openssl md5 -binary < "${MASON_BINARIES_PATH}" | base64)"
     SIGNATURE="$(printf "PUT\n$MD5\n$CONTENT_TYPE\n$DATE\nx-amz-acl:public-read\n/${MASON_BUCKET}/${MASON_BINARIES}" | openssl sha1 -binary -hmac "$AWS_SECRET_ACCESS_KEY" | base64)"
 
-    curl -S -T "${MASON_BINARIES_PATH}" https://${MASON_BUCKET}.s3.amazonaws.com/${MASON_BINARIES} \
+    curl -S -T "${MASON_BINARIES_PATH}" https://${MASON_BUCKET}.s3-us-west-2.amazonaws.com/${MASON_BINARIES} \
         -H "Date: $DATE" \
         -H "Authorization: AWS $AWS_ACCESS_KEY_ID:$SIGNATURE" \
         -H "Content-Type: $CONTENT_TYPE" \
         -H "Content-MD5: $MD5" \
         -H "x-amz-acl: public-read"
 
-    echo https://${MASON_BUCKET}.s3.amazonaws.com/${MASON_BINARIES}
-    curl -f -I https://${MASON_BUCKET}.s3.amazonaws.com/${MASON_BINARIES}
+    echo https://${MASON_BUCKET}.s3-us-west-2.amazonaws.com/${MASON_BINARIES}
+    curl -f -I https://${MASON_BUCKET}.s3-us-west-2.amazonaws.com/${MASON_BINARIES}
 }
 
 function mason_run {
